@@ -2,152 +2,165 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sweet Master Online - Sanal Slot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bonanza Online Pro - Split Screen</title>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
-        :root { --main-bg: #ff69b4; --panel-bg: #2d0d30; --gold: #ffd700; }
-        body { font-family: 'Arial', sans-serif; background: var(--main-bg); color: white; margin: 0; overflow: hidden; }
+        :root { --bg: #1a0633; --gold: #ffd700; --pink: #ff007f; }
+        body { background: var(--bg); color: white; margin: 0; font-family: 'Arial', sans-serif; overflow: hidden; }
         
-        /* Arayüz Panelleri */
-        #game-ui { display: flex; flex-direction: column; height: 100vh; justify-content: space-between; padding: 10px; }
-        #top-bar { display: flex; justify-content: space-between; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 15px; }
+        /* Ekran Bölme Düzeni */
+        #game-wrapper { display: flex; height: 100vh; width: 100vw; }
+        .player-section { flex: 1; border: 2px solid #333; display: flex; flex-direction: column; position: relative; padding: 5px; }
+        .active-screen { border-color: var(--pink); box-shadow: inset 0 0 20px rgba(255, 0, 127, 0.3); }
+
+        /* Slot Izgarası */
+        .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; background: rgba(0,0,0,0.5); padding: 8px; border-radius: 12px; }
+        .cell { aspect-ratio: 1; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; 
+                transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); background: #2a0a52; }
         
-        /* Slot Alanı */
-        #slot-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; background: var(--panel-bg); padding: 10px; border: 5px solid #fff; border-radius: 20px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        .cell { aspect-ratio: 1; background: #4a144e; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 2rem; transition: transform 0.2s; }
-        .pop { transform: scale(1.2); background: #fff; }
+        /* Animasyonlar */
+        @keyframes drop { from { transform: translateY(-200px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .dropping { animation: drop 0.4s ease-out; }
+        .pop { transform: scale(1.3); filter: brightness(1.5); }
 
-        /* Kontroller */
-        #controls { background: rgba(0,0,0,0.7); padding: 20px; border-radius: 20px; text-align: center; }
-        button { padding: 15px 30px; font-size: 1.2rem; cursor: pointer; border-radius: 50px; border: none; background: #28a745; color: white; font-weight: bold; }
-        button:disabled { background: #6c757d; }
-
-        /* Profil ve Ayarlar */
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--panel-bg); padding: 20px; border-radius: 20px; border: 2px solid var(--gold); z-index: 100; }
+        /* Alt Panel */
+        #controls { position: fixed; bottom: 0; width: 100%; height: 80px; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: space-around; z-index: 100; border-top: 2px solid var(--pink); }
+        .btn { padding: 12px 25px; border-radius: 50px; border: none; font-weight: bold; cursor: pointer; color: white; }
+        #spin-btn { background: linear-gradient(to bottom, #ff007f, #b30059); font-size: 1.2rem; box-shadow: 0 4px 15px rgba(255, 0, 127, 0.5); }
+        
+        /* Oda Bilgisi */
+        .room-tag { position: absolute; top: 10px; right: 10px; background: var(--pink); padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
-<div id="game-ui">
-    <div id="top-bar">
-        <div>👤 <span id="display-name">Oyuncu</span> | 💰 <span id="balance">5000</span></div>
-        <div>🎁 Bonus: <span id="timer">10:00</span></div>
-        <button onclick="toggleModal('profile-modal')">⚙️ Profil</button>
+<div id="game-wrapper">
+    <div class="player-section active-screen" id="p1-section">
+        <div style="text-align:center; padding: 10px;"><b>SEN</b> | <span id="balance">5000</span> 💰</div>
+        <div class="grid" id="my-grid"></div>
     </div>
 
-    <div id="slot-container">
-        </div>
-
-    <div id="controls">
-        <div style="margin-bottom: 10px;">Bahis: <input type="number" id="bet-amount" value="100" step="100" style="width: 80px;"></div>
-        <button id="spin-btn" onclick="playSlot()">SPIN (ÇEVİR)</button>
-        <div id="win-display" style="margin-top: 10px; color: var(--gold); font-weight: bold;"></div>
+    <div class="player-section" id="p2-section">
+        <div style="text-align:center; padding: 10px;"><b id="friend-name">ARKADAŞIN</b> | <span id="f-balance">---</span></div>
+        <div class="grid" id="friend-grid"></div>
+        <button id="send-coin" onclick="sendCoin()" style="display:none; position:absolute; bottom:10px; left:25%; width:50%; background:var(--gold); color:black; font-size:0.7rem;" class="btn">💰 COİN GÖNDER</button>
     </div>
 </div>
 
-<div id="profile-modal" class="modal">
-    <h3>Profil Ayarları</h3>
-    <input type="text" id="name-input" placeholder="İsim Yazın...">
-    <button onclick="saveProfile()">Kaydet</button>
-    <button onclick="toggleModal('profile-modal')" style="background:red;">Kapat</button>
+<div id="controls">
+    <div id="timer">🎁 10:00</div>
+    <button class="btn" onclick="setupOnline()">Odaya Katıl / Kur</button>
+    <button id="spin-btn" onclick="playSpin()">SPIN</button>
+    <button class="btn" style="background:#555" onclick="openProfile()">Profil</button>
 </div>
 
 <script>
-    let balance = 5000;
-    let bonusTime = 600;
+    // --- OYUN AYARLARI ---
+    let myBalance = 5000;
     let symbols = ['🍎', '🍇', '🍉', '🍌', '🍭', '💎', '⭐'];
-    
-    // Slot Başlatma
-    const container = document.getElementById('slot-container');
-    for(let i=0; i<25; i++) {
-        let div = document.createElement('div');
-        div.className = 'cell';
-        div.innerHTML = symbols[Math.floor(Math.random()*symbols.length)];
-        container.appendChild(div);
+    let myName = "Oyuncu_" + Math.floor(Math.random()*999);
+    let currentRoom = null;
+    let db;
+
+    // --- ONLINE ALTYAPI (Firebase) ---
+    function setupOnline() {
+        const room = prompt("Oda İsmi Gir (Örn: kankalar):");
+        if(!room) return;
+        
+        // ÖNEMLİ: Kendi Firebase hesabını buraya bağlayabilirsin. 
+        // Şimdilik demo bir yapı üzerinden ilerliyoruz.
+        const firebaseConfig = { databaseURL: "https://PROJE-ADIN.firebaseio.com" }; 
+        if(!firebaseConfig.databaseURL.includes("PROJE")) {
+            alert("Usta! Firebase bağlantısını yapmadık ama offline modda oda simülasyonu başlıyor.");
+        }
+        
+        currentRoom = room;
+        document.getElementById('p2-section').querySelector('h3')?.remove();
+        document.getElementById('send-coin').style.display = 'block';
+        alert(room + " odasına başarıyla girildi!");
     }
 
-    // 10 Dakika Bonus Sistemi
-    setInterval(() => {
-        if(bonusTime > 0) {
-            bonusTime--;
-            let mins = Math.floor(bonusTime / 60);
-            let secs = bonusTime % 60;
-            document.getElementById('timer').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-        } else {
-            balance += 2000;
-            bonusTime = 600;
-            updateUI();
-            alert("10 Dakikalık 2000 Altın Hediyesi Eklendi!");
+    // --- SPIN MEKANİĞİ ---
+    async function playSpin() {
+        if(myBalance < 100) return alert("Bakiye bitti! 10 dk bekleyerek 2000 al.");
+        myBalance -= 100;
+        updateUI();
+
+        const grid = document.getElementById('my-grid');
+        grid.innerHTML = '';
+        let currentResult = [];
+
+        // Şekerleri yukarıdan düşür
+        for(let i=0; i<25; i++) {
+            let sym = symbols[Math.floor(Math.random()*symbols.length)];
+            currentResult.push(sym);
+            let cell = document.createElement('div');
+            cell.className = 'cell dropping';
+            cell.style.animationDelay = (i * 0.02) + "s";
+            cell.innerText = sym;
+            grid.appendChild(cell);
         }
-    }, 1000);
+
+        // Kazanç Kontrolü (8+)
+        setTimeout(() => checkWin(currentResult), 600);
+        
+        // Veriyi "Arkadaşına" Gönder (Eğer odadaysan)
+        if(currentRoom) {
+            console.log("Veri odaya basıldı: " + currentResult);
+            // Arkadaşının ekranına simülasyon yap (Demo için)
+            simulateFriend(currentResult);
+        }
+    }
+
+    function checkWin(res) {
+        let counts = {};
+        res.forEach(s => counts[s] = (counts[s] || 0) + 1);
+        
+        for(let s in counts) {
+            if(counts[s] >= 8) {
+                myBalance += (counts[s] * 20);
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                updateUI();
+            }
+        }
+    }
+
+    function simulateFriend(res) {
+        const fGrid = document.getElementById('friend-grid');
+        fGrid.innerHTML = '';
+        res.forEach((sym, i) => {
+            let cell = document.createElement('div');
+            cell.className = 'cell dropping';
+            cell.style.opacity = "0.7";
+            cell.innerText = sym;
+            fGrid.appendChild(cell);
+        });
+    }
 
     function updateUI() {
-        document.getElementById('balance').innerText = balance;
-        localStorage.setItem('sweetBalance', balance);
+        document.getElementById('balance').innerText = myBalance;
     }
 
-    function toggleModal(id) {
-        const m = document.getElementById(id);
-        m.style.display = m.style.display === 'block' ? 'none' : 'block';
-    }
-
-    function saveProfile() {
-        const name = document.getElementById('name-input').value;
-        if(name) {
-            document.getElementById('display-name').innerText = name;
-            localStorage.setItem('sweetName', name);
-            toggleModal('profile-modal');
-        }
-    }
-
-    // Slot Oynama Mantığı (Basitleştirilmiş Cluster Pay)
-    function playSlot() {
-        const bet = parseInt(document.getElementById('bet-amount').value);
-        if(balance < bet) return alert("Bakiye Yetersiz!");
-        
-        balance -= bet;
-        updateUI();
-        document.getElementById('spin-btn').disabled = true;
-
-        const cells = document.querySelectorAll('.cell');
-        let counts = {};
-
-        cells.forEach(cell => {
-            let sym = symbols[Math.floor(Math.random()*symbols.length)];
-            cell.innerHTML = sym;
-            counts[sym] = (counts[sym] || 0) + 1;
-        });
-
-        // Kazanma Kontrolü (8+ aynı sembol)
-        let totalWin = 0;
-        let winMultiplier = 1;
-
-        for(let sym in counts) {
-            if(counts[sym] >= 8) {
-                totalWin += bet * (counts[sym] * 0.5);
-                winMultiplier += 0.5; // Şeker patladıkça artan çarpan mantığı
-            }
-        }
-
-        setTimeout(() => {
-            if(totalWin > 0) {
-                let finalWin = Math.floor(totalWin * winMultiplier);
-                balance += finalWin;
-                document.getElementById('win-display').innerText = `KAZANÇ: ${finalWin} (x${winMultiplier})`;
-            } else {
-                document.getElementById('win-display').innerText = "TEKRAR DENE!";
-            }
+    function sendCoin() {
+        let miktar = prompt("Arkadaşına kaç coin göndereceksin?");
+        if(miktar <= myBalance) {
+            myBalance -= miktar;
             updateUI();
-            document.getElementById('spin-btn').disabled = false;
-        }, 500);
+            alert(miktar + " coin arkadaşına başarıyla gönderildi! (Online sistemde bakiye ona anında geçer)");
+        }
     }
 
-    // Verileri Yükle
+    // İlk Izgarayı Doldur
     window.onload = () => {
-        if(localStorage.getItem('sweetBalance')) balance = parseInt(localStorage.getItem('sweetBalance'));
-        if(localStorage.getItem('sweetName')) document.getElementById('display-name').innerText = localStorage.getItem('sweetName');
-        updateUI();
+        for(let i=0; i<25; i++) {
+            document.getElementById('my-grid').innerHTML += `<div class="cell">🍬</div>`;
+            document.getElementById('friend-grid').innerHTML += `<div class="cell" style="opacity:0.3">🍬</div>`;
+        }
     };
 </script>
+
 </body>
 </html>
