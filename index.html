@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sweet Master Online - Sanal Slot</title>
+    <style>
+        :root { --main-bg: #ff69b4; --panel-bg: #2d0d30; --gold: #ffd700; }
+        body { font-family: 'Arial', sans-serif; background: var(--main-bg); color: white; margin: 0; overflow: hidden; }
+        
+        /* Arayüz Panelleri */
+        #game-ui { display: flex; flex-direction: column; height: 100vh; justify-content: space-between; padding: 10px; }
+        #top-bar { display: flex; justify-content: space-between; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 15px; }
+        
+        /* Slot Alanı */
+        #slot-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; background: var(--panel-bg); padding: 10px; border: 5px solid #fff; border-radius: 20px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .cell { aspect-ratio: 1; background: #4a144e; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 2rem; transition: transform 0.2s; }
+        .pop { transform: scale(1.2); background: #fff; }
+
+        /* Kontroller */
+        #controls { background: rgba(0,0,0,0.7); padding: 20px; border-radius: 20px; text-align: center; }
+        button { padding: 15px 30px; font-size: 1.2rem; cursor: pointer; border-radius: 50px; border: none; background: #28a745; color: white; font-weight: bold; }
+        button:disabled { background: #6c757d; }
+
+        /* Profil ve Ayarlar */
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--panel-bg); padding: 20px; border-radius: 20px; border: 2px solid var(--gold); z-index: 100; }
+    </style>
+</head>
+<body>
+
+<div id="game-ui">
+    <div id="top-bar">
+        <div>👤 <span id="display-name">Oyuncu</span> | 💰 <span id="balance">5000</span></div>
+        <div>🎁 Bonus: <span id="timer">10:00</span></div>
+        <button onclick="toggleModal('profile-modal')">⚙️ Profil</button>
+    </div>
+
+    <div id="slot-container">
+        </div>
+
+    <div id="controls">
+        <div style="margin-bottom: 10px;">Bahis: <input type="number" id="bet-amount" value="100" step="100" style="width: 80px;"></div>
+        <button id="spin-btn" onclick="playSlot()">SPIN (ÇEVİR)</button>
+        <div id="win-display" style="margin-top: 10px; color: var(--gold); font-weight: bold;"></div>
+    </div>
+</div>
+
+<div id="profile-modal" class="modal">
+    <h3>Profil Ayarları</h3>
+    <input type="text" id="name-input" placeholder="İsim Yazın...">
+    <button onclick="saveProfile()">Kaydet</button>
+    <button onclick="toggleModal('profile-modal')" style="background:red;">Kapat</button>
+</div>
+
+<script>
+    let balance = 5000;
+    let bonusTime = 600;
+    let symbols = ['🍎', '🍇', '🍉', '🍌', '🍭', '💎', '⭐'];
+    
+    // Slot Başlatma
+    const container = document.getElementById('slot-container');
+    for(let i=0; i<25; i++) {
+        let div = document.createElement('div');
+        div.className = 'cell';
+        div.innerHTML = symbols[Math.floor(Math.random()*symbols.length)];
+        container.appendChild(div);
+    }
+
+    // 10 Dakika Bonus Sistemi
+    setInterval(() => {
+        if(bonusTime > 0) {
+            bonusTime--;
+            let mins = Math.floor(bonusTime / 60);
+            let secs = bonusTime % 60;
+            document.getElementById('timer').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        } else {
+            balance += 2000;
+            bonusTime = 600;
+            updateUI();
+            alert("10 Dakikalık 2000 Altın Hediyesi Eklendi!");
+        }
+    }, 1000);
+
+    function updateUI() {
+        document.getElementById('balance').innerText = balance;
+        localStorage.setItem('sweetBalance', balance);
+    }
+
+    function toggleModal(id) {
+        const m = document.getElementById(id);
+        m.style.display = m.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function saveProfile() {
+        const name = document.getElementById('name-input').value;
+        if(name) {
+            document.getElementById('display-name').innerText = name;
+            localStorage.setItem('sweetName', name);
+            toggleModal('profile-modal');
+        }
+    }
+
+    // Slot Oynama Mantığı (Basitleştirilmiş Cluster Pay)
+    function playSlot() {
+        const bet = parseInt(document.getElementById('bet-amount').value);
+        if(balance < bet) return alert("Bakiye Yetersiz!");
+        
+        balance -= bet;
+        updateUI();
+        document.getElementById('spin-btn').disabled = true;
+
+        const cells = document.querySelectorAll('.cell');
+        let counts = {};
+
+        cells.forEach(cell => {
+            let sym = symbols[Math.floor(Math.random()*symbols.length)];
+            cell.innerHTML = sym;
+            counts[sym] = (counts[sym] || 0) + 1;
+        });
+
+        // Kazanma Kontrolü (8+ aynı sembol)
+        let totalWin = 0;
+        let winMultiplier = 1;
+
+        for(let sym in counts) {
+            if(counts[sym] >= 8) {
+                totalWin += bet * (counts[sym] * 0.5);
+                winMultiplier += 0.5; // Şeker patladıkça artan çarpan mantığı
+            }
+        }
+
+        setTimeout(() => {
+            if(totalWin > 0) {
+                let finalWin = Math.floor(totalWin * winMultiplier);
+                balance += finalWin;
+                document.getElementById('win-display').innerText = `KAZANÇ: ${finalWin} (x${winMultiplier})`;
+            } else {
+                document.getElementById('win-display').innerText = "TEKRAR DENE!";
+            }
+            updateUI();
+            document.getElementById('spin-btn').disabled = false;
+        }, 500);
+    }
+
+    // Verileri Yükle
+    window.onload = () => {
+        if(localStorage.getItem('sweetBalance')) balance = parseInt(localStorage.getItem('sweetBalance'));
+        if(localStorage.getItem('sweetName')) document.getElementById('display-name').innerText = localStorage.getItem('sweetName');
+        updateUI();
+    };
+</script>
+</body>
+</html>
