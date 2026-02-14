@@ -3,152 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SWEET MASTER: ULTIMATE CASINO</title>
+    <title>SWEET MASTER: KEKECAN ED.</title>
     
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 
     <style>
-        /* --- GÖRSEL TASARIM & EFEKTLER --- */
         :root {
-            --bg-dark: #090909;
-            --panel-bg: rgba(20, 20, 35, 0.95);
-            --primary: #ff0055;
-            --accent: #00e5ff;
-            --gold: #ffcc00;
-            --win-green: #00ff66;
-            --grid-bg: rgba(0, 0, 0, 0.5);
+            --bg-dark: #050510;
+            --neon-pink: #ff0055;
+            --neon-blue: #00f2ff;
+            --neon-green: #00ff66;
+            --gold: #ffd700;
+            --panel-bg: rgba(10, 10, 25, 0.95);
         }
 
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         
         body {
             margin: 0;
-            height: 100vh;
-            background: url('https://img.freepik.com/free-vector/gradient-galaxy-background_23-2148991322.jpg') no-repeat center center/cover;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            height: 100dvh;
+            background: radial-gradient(circle at center, #1b1b3a 0%, #050510 100%);
+            font-family: 'Orbitron', sans-serif;
             color: white;
             overflow: hidden;
             display: flex;
-        }
-
-        /* --- SIDEBAR MENÜ --- */
-        #sidebar {
-            width: 280px;
-            background: var(--panel-bg);
-            height: 100%;
-            position: absolute;
-            left: -280px;
-            top: 0;
-            z-index: 1000;
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            backdrop-filter: blur(10px);
-            border-right: 2px solid var(--primary);
-            display: flex;
             flex-direction: column;
         }
-        #sidebar.open { left: 0; }
-        
-        .sidebar-header { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .sidebar-header h2 { margin: 0; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px var(--accent); }
-        
-        .menu-items { flex: 1; padding: 20px; overflow-y: auto; }
-        .menu-btn {
-            background: rgba(255,255,255,0.05);
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            transition: 0.3s;
-            border: 1px solid transparent;
-        }
-        .menu-btn:hover { background: var(--primary); transform: translateX(5px); box-shadow: 0 0 15px var(--primary); }
-        .menu-btn i { width: 25px; text-align: center; font-size: 1.2rem; }
 
-        /* --- OYUN ALANI (SPLIT SCREEN) --- */
-        #game-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            position: relative;
-            transition: 0.3s;
-        }
-
-        /* Üst Bar */
+        /* --- ÜST PANEL --- */
         .top-bar {
-            height: 60px;
+            height: 70px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 15px;
             background: rgba(0,0,0,0.6);
+            border-bottom: 2px solid var(--neon-blue);
+            box-shadow: 0 0 20px var(--neon-blue);
             z-index: 100;
         }
-        .hamburger { font-size: 1.8rem; cursor: pointer; color: white; }
-        
+
+        .menu-icon { font-size: 1.8rem; color: var(--neon-blue); cursor: pointer; }
+
         .balance-box {
-            background: linear-gradient(90deg, #111, #222);
+            background: linear-gradient(90deg, #111, #333);
             padding: 8px 20px;
             border-radius: 50px;
             border: 2px solid var(--gold);
-            font-weight: bold;
-            font-size: 1.2rem;
+            font-weight: 900;
+            font-size: 1.1rem;
+            color: var(--gold);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
             display: flex;
             align-items: center;
             gap: 10px;
-            box-shadow: 0 0 15px rgba(255, 204, 0, 0.3);
         }
 
-        /* Ekranlar */
-        .screens-wrapper {
+        /* --- OYUN ALANI --- */
+        #game-area {
             flex: 1;
             display: flex;
-            padding: 10px;
-            gap: 10px;
-            overflow: hidden;
-        }
-        
-        .player-screen {
-            flex: 1;
-            background: rgba(0,0,0,0.4);
-            border-radius: 15px;
-            border: 1px solid rgba(255,255,255,0.1);
-            display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            padding: 10px;
             position: relative;
+            padding: 10px;
         }
-        
-        .friend-screen {
-            flex: 1;
-            border: 2px dashed var(--primary);
-            opacity: 0.8;
-            transform: scale(0.95);
-            display: none; /* JS ile açılacak */
-        }
-        .friend-screen.active { display: flex; transform: scale(1); opacity: 1; }
 
-        /* GRID YAPISI (6x5 Bonanza Style) */
-        .grid-container {
+        .game-grid {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
             grid-template-rows: repeat(5, 1fr);
-            gap: 4px;
+            gap: 5px;
             width: 100%;
-            max-width: 500px;
+            max-width: 450px;
             aspect-ratio: 6/5;
-            background: rgba(0,0,0,0.3);
-            padding: 5px;
-            border-radius: 10px;
-            margin-top: auto;
-            margin-bottom: auto;
+            background: rgba(255,255,255,0.05);
+            padding: 8px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(5px);
+            transition: 0.3s;
+        }
+        
+        /* YEŞİL IŞIK MODU */
+        .green-light-mode {
+            border: 3px solid var(--neon-green) !important;
+            box-shadow: 0 0 50px var(--neon-green), inset 0 0 50px var(--neon-green);
         }
 
         .symbol {
@@ -157,598 +103,415 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem; /* Mobil için ayarla */
-            background-size: cover;
+            font-size: 2rem;
+            background: rgba(0,0,0,0.3);
             border-radius: 8px;
-            background-color: rgba(255,255,255,0.05);
-            transition: transform 0.2s;
             position: relative;
         }
-        
-        /* Animasyon Classları */
-        .falling { animation: bounceInDown 0.6s; }
-        .popping { animation: zoomOut 0.3s forwards; filter: brightness(2); }
-        .matched { box-shadow: inset 0 0 20px var(--win-green); border: 2px solid var(--win-green); }
-        .shaking { animation: headShake 0.5s infinite; }
 
-        /* KONTROL PANELİ */
-        .control-panel {
+        .matched {
+            animation: pulse 0.5s infinite;
+            filter: brightness(1.5);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .falling { animation: bounceInDown 0.6s; }
+        .popping { animation: zoomOut 0.3s forwards; }
+
+        /* --- ALT KONTROLLER --- */
+        .controls {
             height: 100px;
             background: var(--panel-bg);
-            border-top: 3px solid var(--primary);
+            border-top: 2px solid var(--neon-pink);
             display: flex;
             align-items: center;
             justify-content: space-around;
             padding: 10px;
-            position: relative;
-            z-index: 200;
+            box-shadow: 0 -10px 30px rgba(255, 0, 85, 0.2);
         }
 
-        .bet-controls {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .bet-input-group {
-            display: flex;
-            align-items: center;
-            background: #222;
-            border-radius: 10px;
-            overflow: hidden;
-            border: 1px solid #444;
-        }
-        .bet-btn { background: #333; color: white; border: none; padding: 10px 15px; font-size: 1.2rem; cursor: pointer; }
-        .bet-display { width: 80px; text-align: center; font-weight: bold; color: var(--gold); }
-
-        .spin-button {
+        .spin-btn {
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            background: radial-gradient(circle, var(--primary), #990033);
-            border: 4px solid white;
-            color: white;
-            font-weight: 900;
+            background: radial-gradient(circle, var(--neon-pink), #990033);
+            border: 4px solid #fff;
+            color: #fff;
             font-size: 1.2rem;
+            font-weight: 900;
+            box-shadow: 0 0 20px var(--neon-pink);
             cursor: pointer;
-            box-shadow: 0 0 20px var(--primary);
             transition: 0.1s;
+        }
+        .spin-btn:active { transform: scale(0.9); }
+        
+        .bet-control {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #aaa;
+            font-size: 0.8rem;
+        }
+        .bet-val { font-size: 1.2rem; color: #fff; font-weight: bold; margin: 5px 0; }
+        .btn-mini { background: #333; border: 1px solid #555; color: #fff; width: 30px; height: 30px; border-radius: 5px; }
+
+        /* --- MENÜ (SIDEBAR) --- */
+        .sidebar {
+            position: fixed;
+            left: -300px;
+            top: 0;
+            width: 280px;
+            height: 100%;
+            background: rgba(10, 10, 20, 0.98);
+            border-right: 2px solid var(--neon-blue);
+            z-index: 1000;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        .sidebar.open { left: 0; }
+        
+        .producer-tag {
+            margin-top: auto;
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid #333;
+            color: var(--neon-green);
+            font-weight: 900;
+            letter-spacing: 2px;
+            animation: flash 3s infinite;
+        }
+
+        .menu-item {
+            padding: 15px;
+            margin: 5px 0;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            cursor: pointer;
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 10px;
+            transition: 0.2s;
         }
-        .spin-button:active { transform: scale(0.9); box-shadow: 0 0 10px var(--primary); }
-        .spin-button.disabled { filter: grayscale(1); cursor: not-allowed; }
+        .menu-item:hover { background: var(--neon-blue); color: #000; }
 
-        /* KAZANÇ POP-UP */
-        .win-overlay {
+        /* --- BONUS BİLDİRİMİ --- */
+        .bonus-alert {
             position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 3rem;
-            font-weight: 900;
-            color: var(--gold);
-            text-shadow: 0 0 20px black;
-            opacity: 0;
-            pointer-events: none;
-            z-index: 500;
-            width: 100%;
-            text-align: center;
+            top: 80px; right: -200px;
+            background: var(--neon-green);
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 10px 0 0 10px;
+            font-weight: bold;
+            transition: 0.5s;
+            z-index: 999;
+            box-shadow: 0 0 15px var(--neon-green);
         }
-        .animate-win { animation: backInUp 1s forwards, fadeOutUp 1s 1.5s forwards; opacity: 1; }
+        .bonus-alert.show { right: 0; }
 
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            .grid-container { gap: 2px; }
-            .symbol { font-size: 1.4rem; }
-            .screens-wrapper { flex-direction: column; }
-            .friend-screen { height: 30%; border-top: 2px dashed var(--primary); border-left: none; }
-            #sidebar { width: 100%; left: -100%; }
+        /* --- MOBİL UYUMLULUK --- */
+        @media (max-width: 400px) {
+            .symbol { font-size: 1.5rem; }
+            .game-grid { gap: 3px; }
         }
     </style>
 </head>
 <body>
 
-    <div id="sidebar">
-        <div class="sidebar-header">
-            <h2>Sweet Master</h2>
-            <small style="color:#888">Version 3.0 Ultra</small>
+    <div class="sidebar" id="sidebar">
+        <h2 style="color:var(--neon-blue); text-align:center;">AYARLAR</h2>
+        <div class="menu-item" onclick="joinRoomPrompt()"><i class="fas fa-globe"></i> Online Odaya Gir</div>
+        <div class="menu-item" onclick="leaveRoom()"><i class="fas fa-sign-out-alt"></i> Odadan Ayrıl</div>
+        <div class="menu-item" onclick="resetData()"><i class="fas fa-trash"></i> Verileri Sıfırla</div>
+        <div class="menu-item"><i class="fas fa-palette"></i> Tema: Cyberpunk</div>
+        
+        <div style="margin-top:20px; color:#888; font-size:0.8rem; text-align:center;">
+            Server Durumu: <span id="server-status" style="color:red">OFFLINE</span>
         </div>
-        <div class="menu-items">
-            <div class="menu-btn" onclick="toggleSidebar()"><i class="fas fa-times"></i> Menüyü Kapat</div>
-            <div class="menu-btn" onclick="joinRoomPrompt()"><i class="fas fa-users"></i> Online Odaya Katıl</div>
-            <div class="menu-btn" onclick="createRoomPrompt()"><i class="fas fa-plus-circle"></i> Oda Oluştur (Host)</div>
-            <div class="menu-btn" onclick="showHistory()"><i class="fas fa-history"></i> Geçmiş Kazançlar</div>
-            <div class="menu-btn" onclick="toggleSound()"><i class="fas fa-volume-up" id="sound-icon"></i> Ses: Açık</div>
-            <div class="menu-btn" onclick="resetGameData()"><i class="fas fa-trash-alt"></i> Verileri Sıfırla</div>
-        </div>
-        <div style="padding: 20px; text-align: center; font-size: 0.8rem; color: #555;">
-            Server ID: <span id="server-id">OFFLINE</span>
+
+        <div class="producer-tag">
+            YAPIMCI<br>KEKECAN
         </div>
     </div>
 
-    <div id="game-container">
-        <div class="top-bar">
-            <i class="fas fa-bars hamburger" onclick="toggleSidebar()"></i>
-            <div class="balance-box">
-                <i class="fas fa-coins" style="color:var(--gold)"></i>
-                <span id="balance-display">5000</span>
-            </div>
-            <div class="balance-box" style="font-size:0.9rem; border-color:var(--primary)">
-                <i class="fas fa-trophy"></i>
-                <span id="win-display">0</span>
+    <div class="top-bar">
+        <i class="fas fa-bars menu-icon" onclick="toggleMenu()"></i>
+        <div class="balance-box">
+            <i class="fas fa-lira-sign"></i> <span id="balance">5000</span>
+        </div>
+        <div style="font-size:0.8rem; color:var(--neon-pink); font-weight:bold;">
+            <i class="fas fa-trophy"></i> <span id="last-win">0</span>
+        </div>
+    </div>
+
+    <div class="bonus-alert" id="bonus-alert">
+        +2.000 TL BONUS GELDİ!
+    </div>
+
+    <div id="game-area">
+        <div class="game-grid" id="grid"></div>
+        <div id="win-overlay" style="position:absolute; font-size:3rem; font-weight:900; color:var(--gold); display:none; text-shadow:0 0 20px #000;">BIG WIN!</div>
+    </div>
+
+    <div class="controls">
+        <div class="bet-control">
+            <span>BAHİS</span>
+            <div style="display:flex; align-items:center; gap:5px;">
+                <button class="btn-mini" onclick="adjBet(-100)">-</button>
+                <span class="bet-val" id="bet">100</span>
+                <button class="btn-mini" onclick="adjBet(100)">+</button>
             </div>
         </div>
 
-        <div class="screens-wrapper">
-            <div class="player-screen" id="p1-screen">
-                <div style="width:100%; display:flex; justify-content:space-between; padding:0 10px;">
-                    <span class="badge bg-primary">SEN</span>
-                    <span id="p1-status" style="font-size:0.8rem; color:#aaa">Hazır</span>
-                </div>
-                <div class="grid-container" id="grid-p1">
-                    </div>
-                <div class="win-overlay" id="p1-win-text">BIG WIN!</div>
-            </div>
+        <button class="spin-btn" id="spin-btn" onclick="spin()">SPIN</button>
 
-            <div class="player-screen friend-screen" id="p2-screen">
-                <div style="width:100%; display:flex; justify-content:space-between; padding:0 10px;">
-                    <span class="badge" style="background:var(--primary)">RAKİP</span>
-                    <span id="p2-name">Bekleniyor...</span>
-                </div>
-                <div class="grid-container" id="grid-p2">
-                    </div>
-                <div class="win-overlay" id="p2-win-text">BIG WIN!</div>
-            </div>
-        </div>
-
-        <div class="control-panel">
-            <div class="bet-controls">
-                <small style="color:#888; font-weight:bold;">BAHİS</small>
-                <div class="bet-input-group">
-                    <button class="bet-btn" onclick="changeBet(-50)">-</button>
-                    <div class="bet-display" id="bet-amount">100</div>
-                    <button class="bet-btn" onclick="changeBet(50)">+</button>
-                </div>
-            </div>
-
-            <div class="spin-button" id="spin-btn" onclick="startSpinSequence()">
-                SPIN
-            </div>
-
-            <div class="bet-controls">
-                <small style="color:#888; font-weight:bold;">OTO</small>
-                <div class="bet-input-group">
-                    <button class="bet-btn" onclick="toggleAuto()" id="auto-btn">OFF</button>
-                </div>
-            </div>
+        <div class="bet-control">
+            <span>OTO</span>
+            <button class="btn-mini" onclick="toggleAuto()" id="auto-btn" style="width:50px;">OFF</button>
         </div>
     </div>
 
 <script>
-    /**
-     * SWEET MASTER OYUN MOTORU v3.0
-     * Bu motor "Cascading Reels" mantığı ile çalışır.
-     */
-
-    // --- AYARLAR VE DEĞİŞKENLER ---
-    const SYMBOLS = [
-        { id: 'heart', icon: '❤️', val: 10 },
-        { id: 'square', icon: '🟦', val: 5 },
-        { id: 'triangle', icon: '🔺', val: 4 },
-        { id: 'star', icon: '⭐', val: 20 },   // Yüksek Kazanç
-        { id: 'moon', icon: '🌙', val: 8 },
-        { id: 'diamond', icon: '💎', val: 50 }, // Jackpot
-        { id: 'grape', icon: '🍇', val: 3 },
-        { id: 'banana', icon: '🍌', val: 2 },
-        { id: 'bomb', icon: '💣', val: 0 }     // Scatter (Bonus Tetikleyici)
-    ];
-
-    let gameState = {
-        balance: 5000,
-        bet: 100,
-        isSpinning: false,
-        autoSpin: false,
-        soundOn: true,
-        roomID: null,
-        history: []
+    // --- FIREBASE YAPILANDIRMASI (SENİN ATTIĞIN KEYLER) ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyAeDY4Bv6hWopJrfeJ7nfgPJRd9VYGEx8B",
+      authDomain: "sweet-masters-82504.firebaseapp.com",
+      databaseURL: "https://sweet-masters-82504-default-rtdb.firebaseio.com",
+      projectId: "sweet-masters-82504",
+      storageBucket: "sweet-masters-82504.firebasestorage.app",
+      messagingSenderId: "600834822835",
+      appId: "1:600834822835:web:db3ea440ccce2031a956c6"
     };
 
-    // Ses Bağlamı (Web Audio API - Dosya gerektirmez)
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-    // --- BAŞLATMA ---
-    window.onload = () => {
-        loadData();
-        createGrid('grid-p1');
-        createGrid('grid-p2'); // Rakip için boş grid
-        updateUI();
-        
-        // Rakip gridini şeffaf sembollerle doldur
-        fillRandom('grid-p2', true);
-    };
-
-    // --- SES MOTORU (Synthesizer) ---
-    function playSound(type) {
-        if (!gameState.soundOn) return;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-
-        if (type === 'spin') {
-            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.2);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
-        } else if (type === 'win') {
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-            osc.frequency.linearRampToValueAtTime(800, audioCtx.currentTime + 0.1);
-            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.5);
-        } else if (type === 'pop') {
-            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-        }
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    
+    // OYUNCU KİMLİĞİ OLUŞTUR VEYA YÜKLE
+    let userId = localStorage.getItem('sm_uid');
+    if(!userId) {
+        userId = "oyuncu_" + Math.floor(Math.random()*99999);
+        localStorage.setItem('sm_uid', userId);
     }
 
-    // --- GRID İŞLEMLERİ ---
-    function createGrid(elementId) {
-        const grid = document.getElementById(elementId);
+    // --- OYUN DEĞİŞKENLERİ ---
+    const SYMBOLS = ['💎', '⭐', '🍇', '🍉', '🍌', '🍒', '🍋', '💣'];
+    let state = {
+        balance: parseInt(localStorage.getItem('sm_bal')) || 5000,
+        bet: 100,
+        spinning: false,
+        auto: false,
+        roomID: null,
+        greenLight: false // x10 Modu
+    };
+
+    // --- BAŞLANGIÇ ---
+    window.onload = () => {
+        updateUI();
+        createGrid();
+        startBonusTimer(); // Para dağıtma sistemi
+    };
+
+    function createGrid() {
+        const grid = document.getElementById('grid');
         grid.innerHTML = '';
-        for (let i = 0; i < 30; i++) { // 6x5 = 30 Hücre
+        for(let i=0; i<30; i++) {
             let cell = document.createElement('div');
             cell.className = 'symbol';
-            cell.dataset.index = i;
+            cell.innerText = getRandomSymbol();
             grid.appendChild(cell);
         }
     }
 
-    function fillRandom(elementId, isMuted = false) {
-        const cells = document.getElementById(elementId).children;
-        for (let cell of cells) {
-            if (!cell.innerText || cell.classList.contains('popping')) {
-                const rnd = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
-                cell.innerText = rnd.icon;
-                cell.dataset.id = rnd.id;
-                cell.className = 'symbol falling';
-                cell.style.filter = isMuted ? 'grayscale(1) opacity(0.5)' : 'none';
-                if(!isMuted) cell.style.animationDelay = (Math.random() * 0.3) + 's';
-            }
-        }
+    function getRandomSymbol() {
+        // Bombayı (💣) daha az getir
+        let rand = Math.random();
+        if(rand < 0.05) return '💣'; // Scatter
+        if(rand < 0.15) return '💎'; // Yüksek
+        return SYMBOLS[Math.floor(Math.random() * (SYMBOLS.length - 2)) + 2];
     }
 
-    // --- OYUN MANTIĞI (TAKLA SİSTEMİ) ---
-    async function startSpinSequence() {
-        if (gameState.isSpinning || gameState.balance < gameState.bet) {
-            if (gameState.balance < gameState.bet) Swal.fire("Hata", "Bakiye Yetersiz!", "error");
-            return;
-        }
-
-        gameState.isSpinning = true;
-        gameState.balance -= gameState.bet;
+    // --- SPIN MEKANİĞİ ---
+    async function spin() {
+        if(state.spinning || state.balance < state.bet) return;
+        
+        state.spinning = true;
+        state.balance -= state.bet;
         updateUI();
-        playSound('spin');
-        
-        document.getElementById('spin-btn').classList.add('disabled');
-        document.getElementById('p1-status').innerText = "Dönüyor...";
+        document.getElementById('spin-btn').style.transform = "scale(0.9)";
 
-        // 1. Grid Temizle ve Yeni Semboller Düşür
-        const p1Grid = document.getElementById('grid-p1');
-        Array.from(p1Grid.children).forEach(c => c.innerHTML = '');
-        
-        // Simüle edilmiş gecikme (Sütun sütun düşme hissi)
-        for(let i=0; i<6; i++) { // 6 Sütun
+        // YEŞİL IŞIK EVENTİ (%10 İhtimal)
+        state.greenLight = Math.random() < 0.1;
+        if(state.greenLight) {
+            document.querySelector('.game-grid').classList.add('green-light-mode');
+            Swal.fire({
+                toast: true, position: 'top', icon: 'success', 
+                title: 'YEŞİL IŞIK! Kazançlar x10', showConfirmButton: false, timer: 1500
+            });
+        } else {
+            document.querySelector('.game-grid').classList.remove('green-light-mode');
+        }
+
+        // Animasyon
+        const cells = document.querySelectorAll('.symbol');
+        cells.forEach((c, i) => {
+            c.classList.add('falling');
             setTimeout(() => {
-                // Sadece o sütundaki hücreleri doldur
-                for(let r=0; r<5; r++) {
-                    let idx = r*6 + i; 
-                    let cell = p1Grid.children[idx];
-                    let sym = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
-                    cell.innerText = sym.icon;
-                    cell.dataset.id = sym.id;
-                    cell.className = 'symbol falling';
-                }
-            }, i * 100);
-        }
-
-        // Eğer ODA varsa Rakip de oynasın (Bot Simülasyonu)
-        if (gameState.roomID) {
-            simulateOpponent();
-        }
-
-        // 2. Patlama Kontrolü (Cascading)
-        setTimeout(() => checkMatchesRecursive(1), 1200);
-    }
-
-    async function checkMatchesRecursive(multiplier) {
-        const grid = document.getElementById('grid-p1');
-        const cells = Array.from(grid.children);
-        let counts = {};
-        let winCells = [];
-
-        // Sayım Yap
-        cells.forEach(c => {
-            let id = c.dataset.id;
-            if(!id) return;
-            counts[id] = (counts[id] || 0) + 1;
+                c.innerText = getRandomSymbol();
+                c.classList.remove('falling');
+            }, i * 20); // Dalgalı düşüş
         });
 
-        // 8+ Eşleşme Kontrolü
-        let roundWin = 0;
-        let hasMatch = false;
+        // Online Sync
+        if(state.roomID) {
+            db.ref(`rooms/${state.roomID}/${userId}`).update({
+                action: 'spinning',
+                time: Date.now()
+            });
+        }
 
-        for (let id in counts) {
-            if (counts[id] >= 8) {
-                hasMatch = true;
-                let symInfo = SYMBOLS.find(s => s.id === id);
-                let winVal = gameState.bet * (symInfo.val / 10) * (counts[id] / 5) * multiplier;
-                roundWin += winVal;
+        await new Promise(r => setTimeout(r, 800));
+        checkWin();
+        document.getElementById('spin-btn').style.transform = "scale(1)";
+    }
 
-                // Patlayacak hücreleri işaretle
-                cells.forEach(c => {
-                    if (c.dataset.id === id) {
-                        c.classList.add('matched'); // Yeşil Çerçeve
-                        winCells.push(c);
-                    }
+    function checkWin() {
+        const cells = document.querySelectorAll('.symbol');
+        let counts = {};
+        cells.forEach(c => counts[c.innerText] = (counts[c.innerText] || 0) + 1);
+
+        let win = 0;
+        // KAZANMA MANTIĞI (6 Eşleşme Yeterli - Daha çok kazandırır)
+        for(let sym in counts) {
+            if(counts[sym] >= 6) {
+                let baseVal = SYMBOLS.indexOf(sym) + 1; // Basit değer hesabı
+                if(sym === '💎') baseVal = 50;
+                if(sym === '💣') baseVal = 0; // Bomba puan vermez, patlatır
+                
+                win += (baseVal * counts[sym] * (state.bet / 20));
+            }
+        }
+
+        if(state.greenLight) win *= 10;
+
+        if(win > 0) {
+            state.balance += win;
+            showWinEffect(win);
+            // Online Sync Win
+            if(state.roomID) {
+                db.ref(`rooms/${state.roomID}/${userId}`).update({
+                    lastWin: win,
+                    action: 'win'
                 });
             }
         }
 
-        if (hasMatch) {
-            // KAZANDIN!
-            playSound('win');
-            gameState.balance += roundWin;
-            showFloatingWin(roundWin);
-            updateUI();
-            
-            // Konfeti
-            if(roundWin > gameState.bet * 5) {
-                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-                showBigWinText("MUHTEŞEM!");
-            }
+        state.spinning = false;
+        updateUI();
 
-            // Patlama Animasyonu (Bekle)
-            await new Promise(r => setTimeout(r, 800));
-
-            // Hücreleri Yok Et
-            winCells.forEach(c => {
-                c.classList.remove('matched');
-                c.classList.add('popping');
-                playSound('pop');
-            });
-
-            await new Promise(r => setTimeout(r, 400));
-
-            // TAKLA ATMA (Boşlukları Doldur)
-            winCells.forEach(c => {
-                c.classList.remove('popping');
-                let rnd = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
-                c.innerText = rnd.icon;
-                c.dataset.id = rnd.id;
-                c.className = 'symbol falling'; // Yeni gelenler düşer
-            });
-
-            // Tekrar Kontrol Et (Zincirleme Reaksiyon)
-            setTimeout(() => checkMatchesRecursive(multiplier + 1), 600);
-
-        } else {
-                        // Tur Bitti
-            gameState.isSpinning = false;
-            document.getElementById('spin-btn').classList.remove('disabled');
-            document.getElementById('p1-status').innerText = "Hazır";
-            
-            // Eğer Otomatik Oyun (Auto) Açıksa ve Bakiye Varsa Yeni Spin At
-            if(gameState.autoSpin && gameState.balance >= gameState.bet) {
-                setTimeout(startSpinSequence, 1000);
-            }
+        if(state.auto && state.balance >= state.bet) {
+            setTimeout(spin, 1200);
         }
     }
 
-    // --- RAKİP SİMÜLASYONU (OFFLINE BOT) ---
-    function simulateOpponent() {
-        const p2Grid = document.getElementById('grid-p2');
-        // Rakip ekranında şekerlerin düştüğünü göster
-        fillRandom('grid-p2'); 
+    function showWinEffect(amount) {
+        const overlay = document.getElementById('win-overlay');
+        overlay.innerText = "+" + Math.floor(amount);
+        overlay.style.display = 'block';
+        overlay.classList.add('animate__animated', 'animate__bounceIn');
         
-        setTimeout(() => {
-            // %40 ihtimalle rakip sembol patlatır (Heyecan için)
-            if(Math.random() > 0.6) {
-                let winAmount = gameState.bet * (Math.floor(Math.random() * 10) + 2);
-                let winText = document.getElementById('p2-win-text');
-                winText.innerText = "+" + winAmount.toFixed(0);
-                winText.classList.add('animate-win');
-                
-                // Konfeti fırlat (Rakip kazanınca da heyecan olsun)
-                confetti({ particleCount: 50, spread: 50, origin: { x: 0.8, y: 0.4 } });
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
 
-                setTimeout(() => winText.classList.remove('animate-win'), 2500);
-            }
+        setTimeout(() => {
+            overlay.style.display = 'none';
+            overlay.classList.remove('animate__animated', 'animate__bounceIn');
         }, 1500);
     }
 
-    // --- UI GÜNCELLEMELERİ & ANİMASYONLAR ---
+    // --- PARA DAĞITMA SİSTEMİ (BAĞIMLILIK MODU) ---
+    function startBonusTimer() {
+        setInterval(() => {
+            state.balance += 2000;
+            updateUI();
+            
+            const alert = document.getElementById('bonus-alert');
+            alert.classList.add('show');
+            setTimeout(() => alert.classList.remove('show'), 3000);
+            
+            playSound('coin'); // Varsa ses çalar
+        }, 300000); // 300.000 ms = 5 Dakika
+    }
+
+    // --- ONLINE ODA SİSTEMİ ---
+    async function joinRoomPrompt() {
+        const { value: room } = await Swal.fire({
+            title: 'Oda İsmi Gir',
+            input: 'text',
+            background: '#111', color: '#fff',
+            confirmButtonColor: '#ff0055'
+        });
+
+        if(room) {
+            state.roomID = room;
+            const userRef = db.ref(`rooms/${room}/${userId}`);
+            
+            userRef.set({
+                name: userId,
+                balance: state.balance,
+                status: 'online'
+            });
+
+            // Ayrılınca sil
+            userRef.onDisconnect().remove();
+
+            document.getElementById('server-status').innerText = "ONLINE: " + room;
+            document.getElementById('server-status').style.color = "#00ff66";
+            toggleMenu();
+            Swal.fire('Bağlandı!', `${room} odasındasın.`, 'success');
+        }
+    }
+
+    function leaveRoom() {
+        if(!state.roomID) return;
+        db.ref(`rooms/${state.roomID}/${userId}`).remove();
+        state.roomID = null;
+        document.getElementById('server-status').innerText = "OFFLINE";
+        document.getElementById('server-status').style.color = "red";
+        toggleMenu();
+        Swal.fire('Ayrıldın', 'Offline moda geçildi.', 'info');
+    }
+
+    // --- UI & YARDIMCI ---
     function updateUI() {
-        // Mevcut bakiyeyi al
-        let oldVal = parseInt(document.getElementById('balance-display').innerText.replace(/\./g, ''));
-        // Sayı animasyonu ile yeni bakiyeye geç
-        animateValue("balance-display", oldVal, gameState.balance, 500);
-        document.getElementById('bet-amount').innerText = gameState.bet;
-        saveData();
+        document.getElementById('balance').innerText = Math.floor(state.balance).toLocaleString();
+        document.getElementById('bet').innerText = state.bet;
+        document.getElementById('last-win').innerText = localStorage.getItem('sm_last_win') || 0;
+        localStorage.setItem('sm_bal', state.balance);
     }
 
-    function animateValue(id, start, end, duration) {
-        if (start === end) return;
-        let range = end - start;
-        let current = start;
-        let increment = end > start ? Math.ceil(range / 25) : Math.floor(range / 25);
-        let stepTime = Math.abs(Math.floor(duration / 25));
-        let obj = document.getElementById(id);
-        
-        let timer = setInterval(function() {
-            current += increment;
-            // Sayıları binlik ayraçla formatla
-            obj.innerHTML = current.toLocaleString('tr-TR');
-            if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
-                obj.innerHTML = end.toLocaleString('tr-TR');
-                clearInterval(timer);
-            }
-        }, stepTime);
-    }
-
-    function showFloatingWin(amount) {
-        const p1 = document.getElementById('p1-screen');
-        let el = document.createElement('div');
-        el.innerText = "+" + Math.floor(amount).toLocaleString('tr-TR');
-        el.style.position = 'absolute';
-        el.style.left = '50%';
-        el.style.top = '50%';
-        el.style.fontSize = '2.5rem';
-        el.style.color = 'var(--gold)';
-        el.style.textShadow = '0 0 15px #000, 0 0 5px #fff';
-        el.style.fontWeight = '900';
-        el.style.transition = '1.5s cubic-bezier(0.1, 0.7, 1.0, 0.1)';
-        el.style.zIndex = 999;
-        el.style.pointerEvents = 'none';
-        p1.appendChild(el);
-        
-        setTimeout(() => {
-            el.style.transform = 'translate(-50%, -250px) scale(1.5)';
-            el.style.opacity = '0';
-        }, 50);
-        setTimeout(() => el.remove(), 1500);
-    }
-
-    function showBigWinText(text) {
-        let el = document.getElementById('p1-win-text');
-        el.innerText = text;
-        el.classList.add('animate-win');
-        setTimeout(() => el.classList.remove('animate-win'), 3000);
-    }
-
-    // --- KONTROLLER ---
-    function changeBet(amount) {
-        if(gameState.isSpinning) return;
-        if(gameState.bet + amount >= 50 && gameState.bet + amount <= 10000) {
-            gameState.bet += amount;
+    function adjBet(val) {
+        if(state.bet + val >= 100) {
+            state.bet += val;
             updateUI();
         }
     }
 
     function toggleAuto() {
-        gameState.autoSpin = !gameState.autoSpin;
-        const btn = document.getElementById('auto-btn');
-        btn.innerText = gameState.autoSpin ? "ON" : "OFF";
-        btn.style.background = gameState.autoSpin ? "var(--win-green)" : "#333";
-        btn.style.color = gameState.autoSpin ? "#000" : "#fff";
-        
-        if(gameState.autoSpin && !gameState.isSpinning) {
-            startSpinSequence();
-        }
+        state.auto = !state.auto;
+        document.getElementById('auto-btn').innerText = state.auto ? "ON" : "OFF";
+        document.getElementById('auto-btn').style.background = state.auto ? "#00ff66" : "#333";
+        if(state.auto) spin();
     }
 
-    function toggleSidebar() {
+    function toggleMenu() {
         document.getElementById('sidebar').classList.toggle('open');
     }
-    
-    function toggleSound() {
-        gameState.soundOn = !gameState.soundOn;
-        document.getElementById('sound-icon').className = gameState.soundOn ? "fas fa-volume-up" : "fas fa-volume-mute";
-        Swal.fire({
-            toast: true,
-            position: 'top-end',
-            icon: 'info',
-            title: gameState.soundOn ? 'Ses Açıldı' : 'Ses Kapatıldı',
-            showConfirmButton: false,
-            timer: 1500
-        });
-    }
 
-    // --- ODA & KAYIT SİSTEMİ ---
-    function joinRoomPrompt() {
-        Swal.fire({
-            title: 'Odaya Katıl',
-            input: 'text',
-            inputLabel: 'Oda İsmi',
-            inputPlaceholder: 'Örn: kankalar123',
-            showCancelButton: true
-        }).then((result) => {
-            if (result.isConfirmed && result.value) {
-                gameState.roomID = result.value;
-                document.getElementById('p2-screen').classList.add('active'); 
-                document.getElementById('p2-name').innerText = "Oyuncu: " + result.value;
-                document.getElementById('server-id').innerText = "LIVE: " + result.value;
-                Swal.fire("Başarılı", result.value + " odasına bağlandınız!", "success");
-                toggleSidebar();
-            }
-        });
+    function resetData() {
+        localStorage.clear();
+        location.reload();
     }
-
-    function createRoomPrompt() {
-        const room = "ROOM-" + Math.floor(Math.random()*9999);
-        gameState.roomID = room;
-        Swal.fire({
-            title: 'Oda Kuruldu',
-            text: 'Arkadaşına bu kodu ver: ' + room,
-            icon: 'success',
-            confirmButtonText: 'Kodu Kopyala'
-        }).then(() => {
-            navigator.clipboard.writeText(room);
-            document.getElementById('p2-screen').classList.add('active');
-            document.getElementById('p2-name').innerText = "Oda Sahibi: Sen";
-            document.getElementById('server-id').innerText = "HOSTING: " + room;
-            toggleSidebar();
-        });
-    }
-
-    function saveData() {
-        const data = {
-            bal: gameState.balance,
-            hist: gameState.history
-        };
-        localStorage.setItem('sm_data_v3', JSON.stringify(data));
-    }
-
-    function loadData() {
-        const data = JSON.parse(localStorage.getItem('sm_data_v3'));
-        if(data) {
-            gameState.balance = data.bal;
-            gameState.history = data.hist || [];
-        }
-    }
-
-    function resetGameData() {
-        Swal.fire({
-            title: 'Emin misin?',
-            text: "Tüm bakiyen ve verilerin sıfırlanacak!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            confirmButtonText: 'Evet, Sıfırla'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                localStorage.removeItem('sm_data_v3');
-                location.reload();
-            }
-        });
-    }
-
-    function showHistory() {
-        Swal.fire({
-            title: 'Kasa Bilgisi',
-            html: `Güncel Bakiye: <b>${gameState.balance.toLocaleString()}</b> ₺<br>Lisans: Sweet Master v3.0 Ultra`,
-            icon: 'info'
-        });
-    }
-
 </script>
 </body>
 </html>
-
-            
