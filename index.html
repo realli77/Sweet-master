@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SWEET MASTER: KEKECAN ED.</title>
+    <title>SWEET MASTER: KEKECAN FINAL</title>
     
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -20,6 +20,7 @@
             --neon-blue: #00f2ff;
             --neon-green: #00ff66;
             --gold: #ffd700;
+            --danger: #ff3300;
             --panel-bg: rgba(10, 10, 25, 0.95);
         }
 
@@ -27,7 +28,7 @@
         
         body {
             margin: 0;
-            height: 100dvh; /* BEYAZ ÇİZGİ ÇÖZÜMÜ */
+            height: 100dvh;
             background: radial-gradient(circle at center, #1b1b3a 0%, #050510 100%);
             font-family: 'Orbitron', sans-serif;
             color: white;
@@ -36,125 +37,102 @@
             flex-direction: column;
         }
 
+        /* --- MENÜ (SIDEBAR) --- */
+        .sidebar {
+            position: fixed; left: -300px; top: 0; width: 280px; height: 100%;
+            background: rgba(10, 10, 20, 0.98); border-right: 2px solid var(--neon-blue);
+            z-index: 2000; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; flex-direction: column; padding: 20px;
+        }
+        .sidebar.open { left: 0; box-shadow: 10px 0 50px rgba(0,0,0,0.8); }
+        
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .menu-item { padding: 15px; margin: 8px 0; background: rgba(255,255,255,0.05); border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.2s; }
+        .menu-item:active { transform: scale(0.95); background: var(--neon-blue); color: #000; }
+        .producer-tag { margin-top: auto; text-align: center; padding: 20px; border-top: 1px solid #333; color: var(--neon-green); font-weight: 900; letter-spacing: 2px; animation: flash 3s infinite; }
+
         /* --- ÜST PANEL --- */
         .top-bar {
-            height: 70px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 15px;
-            background: rgba(0,0,0,0.6);
-            border-bottom: 2px solid var(--neon-blue);
-            box-shadow: 0 0 20px var(--neon-blue);
+            height: 70px; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 15px; background: rgba(0,0,0,0.6);
+            border-bottom: 2px solid var(--neon-blue); box-shadow: 0 0 20px var(--neon-blue);
             z-index: 100;
         }
-
-        .menu-icon { font-size: 1.8rem; color: var(--neon-blue); cursor: pointer; }
-
         .balance-box {
-            background: linear-gradient(90deg, #111, #333);
-            padding: 8px 20px;
-            border-radius: 50px;
-            border: 2px solid var(--gold);
-            font-weight: 900;
-            font-size: 1.1rem;
-            color: var(--gold);
+            background: linear-gradient(90deg, #111, #333); padding: 8px 20px;
+            border-radius: 50px; border: 2px solid var(--gold);
+            font-weight: 900; font-size: 1.1rem; color: var(--gold);
             box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            display: flex; align-items: center; gap: 10px;
         }
 
         /* --- OYUN ALANI --- */
-        #game-area {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            padding: 10px;
-        }
+        #game-area { flex: 1; display: flex; justify-content: center; align-items: center; position: relative; padding: 10px; }
 
         .game-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            grid-template-rows: repeat(5, 1fr);
-            gap: 5px;
-            width: 100%;
-            max-width: 450px;
-            aspect-ratio: 6/5;
-            background: rgba(255,255,255,0.05);
-            padding: 8px;
-            border-radius: 15px;
-            border: 1px solid rgba(255,255,255,0.1);
-            backdrop-filter: blur(5px);
-            transition: 0.3s;
+            display: grid; grid-template-columns: repeat(6, 1fr); grid-template-rows: repeat(5, 1fr);
+            gap: 6px; width: 100%; max-width: 450px; aspect-ratio: 6/5;
+            background: rgba(20, 20, 40, 0.6); padding: 10px;
+            border-radius: 15px; border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(5px); transition: 0.3s;
         }
         
-        .green-light-mode {
-            border: 3px solid var(--neon-green) !important;
-            box-shadow: 0 0 50px var(--neon-green), inset 0 0 50px var(--neon-green);
-        }
-
         .symbol {
             width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
             font-size: 2rem; background: rgba(0,0,0,0.3);
-            border-radius: 8px;
+            border-radius: 8px; position: relative;
+            animation: float 3s ease-in-out infinite; /* SÜREKLİ ANİMASYON */
         }
 
-        /* --- MENÜ (SIDEBAR) --- */
-        .sidebar {
-            position: fixed;
-            left: -300px;
-            top: 0;
-            width: 280px;
-            height: 100%;
-            background: rgba(10, 10, 20, 0.98);
-            border-right: 2px solid var(--neon-blue);
-            z-index: 1000;
-            transition: 0.3s;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-        }
-        .sidebar.open { left: 0; }
+        /* --- EFEKTLER --- */
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-3px); } 100% { transform: translateY(0px); } }
         
-        .sidebar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+        /* Kazanan semboller için yeşil ışık */
+        .winning-glow {
+            box-shadow: 0 0 20px var(--neon-green), inset 0 0 10px var(--neon-green) !important;
+            border: 2px solid var(--neon-green) !important;
+            z-index: 10;
+        }
+        
+        /* Tek tek yanma efekti için class */
+        .suspense-glow {
+            border: 2px solid var(--gold);
+            box-shadow: 0 0 15px var(--gold);
+            transform: scale(1.1);
+            transition: 0.2s;
         }
 
-        .menu-item {
-            padding: 15px; margin: 5px 0;
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px; cursor: pointer;
-            display: flex; align-items: center; gap: 10px;
-        }
-
-        .producer-tag {
-            margin-top: auto; text-align: center; padding: 20px;
-            border-top: 1px solid #333; color: var(--neon-green);
-            font-weight: 900; letter-spacing: 2px;
-            animation: flash 3s infinite;
-        }
+        .pop-out { animation: zoomOutUp 0.5s forwards; }
+        .drop-in { animation: bounceInDown 0.6s; }
 
         /* --- ALT KONTROLLER --- */
         .controls {
-            height: 100px; background: var(--panel-bg);
+            height: 110px; background: var(--panel-bg);
             border-top: 2px solid var(--neon-pink);
             display: flex; align-items: center; justify-content: space-around;
-            padding: 10px;
+            padding: 10px; box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
         }
 
         .spin-btn {
-            width: 80px; height: 80px; border-radius: 50%;
+            width: 85px; height: 85px; border-radius: 50%;
             background: radial-gradient(circle, var(--neon-pink), #990033);
             border: 4px solid #fff; color: #fff; font-size: 1.2rem;
             font-weight: 900; box-shadow: 0 0 20px var(--neon-pink);
-            cursor: pointer;
+            cursor: pointer; transition: 0.1s;
+        }
+        .spin-btn:active { transform: scale(0.9); filter: brightness(0.8); }
+        .spin-btn:disabled { filter: grayscale(1); cursor: not-allowed; }
+
+        .control-group { text-align: center; }
+        .btn-mini { background: #333; color: white; border: 1px solid #555; width: 35px; height: 35px; border-radius: 8px; font-weight: bold; }
+        
+        /* Mega Win Yazısı */
+        #win-msg {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 4rem; font-weight: 900; color: var(--gold);
+            text-shadow: 0 0 30px #000; display: none; z-index: 999;
+            pointer-events: none; text-align: center;
         }
     </style>
 </head>
@@ -165,43 +143,53 @@
             <h2 style="color:var(--neon-blue); margin:0;">AYARLAR</h2>
             <i class="fas fa-times" onclick="toggleMenu()" style="font-size:1.5rem; color:var(--neon-pink); cursor:pointer;"></i>
         </div>
+        <div class="menu-item" onclick="showPayTable()"><i class="fas fa-list-alt"></i> Kazanç Tablosu</div>
         <div class="menu-item" onclick="joinRoomPrompt()"><i class="fas fa-globe"></i> Online Odaya Gir</div>
         <div class="menu-item" onclick="leaveRoom()"><i class="fas fa-sign-out-alt"></i> Odadan Ayrıl</div>
         <div class="menu-item" onclick="resetData()"><i class="fas fa-trash"></i> Verileri Sıfırla</div>
         
         <div style="margin-top:20px; color:#888; font-size:0.8rem; text-align:center;">
-            Server: <span id="server-status" style="color:red">OFFLINE</span>
+            SERVER: <span id="server-status" style="color:red">OFFLINE</span>
         </div>
 
         <div class="producer-tag">YAPIMCI<br>KEKECAN</div>
     </div>
 
     <div class="top-bar">
-        <i class="fas fa-bars menu-icon" onclick="toggleMenu()"></i>
+        <i class="fas fa-bars" onclick="toggleMenu()" style="font-size:1.8rem; color:var(--neon-blue); cursor:pointer;"></i>
         <div class="balance-box"><i class="fas fa-lira-sign"></i> <span id="balance">5000</span></div>
-        <div style="color:var(--neon-pink); font-weight:bold;"><i class="fas fa-trophy"></i> <span id="last-win">0</span></div>
+        <div style="color:var(--neon-pink); font-weight:bold; font-size:0.9rem;">
+            SON KAZANÇ: <span id="last-win">0</span>
+        </div>
     </div>
 
     <div id="game-area">
         <div class="game-grid" id="grid"></div>
-        <div id="win-overlay" style="position:absolute; font-size:3rem; font-weight:900; color:var(--gold); display:none; z-index:10;">BIG WIN!</div>
+        <div id="win-msg">MEGA WIN!</div>
     </div>
 
     <div class="controls">
-        <div style="display:flex; flex-direction:column; align-items:center;">
-            <span style="font-size:0.7rem;">BAHİS</span>
-            <div style="display:flex; gap:5px;">
-                <button onclick="adjBet(-100)" style="background:#333; color:white; border:none; padding:5px 10px;">-</button>
-                <span id="bet" style="font-weight:bold;">100</span>
-                <button onclick="adjBet(100)" style="background:#333; color:white; border:none; padding:5px 10px;">+</button>
+        <div class="control-group">
+            <span style="font-size:0.7rem; color:#aaa;">BAHİS</span>
+            <div style="display:flex; align-items:center; gap:5px; margin-top:5px;">
+                <button class="btn-mini" onclick="adjBet(-100)">-</button>
+                <span id="bet" style="font-weight:bold; min-width:50px;">100</span>
+                <button class="btn-mini" onclick="adjBet(100)">+</button>
             </div>
         </div>
-        <button class="spin-btn" id="spin-btn" onclick="spin()">SPIN</button>
-        <button onclick="toggleAuto()" id="auto-btn" style="background:#333; color:white; border:none; padding:10px; border-radius:5px;">OTO: OFF</button>
+
+        <button class="spin-btn" id="spin-btn" onclick="playTurn()">SPIN</button>
+
+        <div class="control-group">
+            <span style="font-size:0.7rem; color:#aaa;">OTOMATİK</span>
+            <div style="margin-top:5px;">
+                <button class="btn-mini" onclick="toggleAuto()" id="auto-btn" style="width:60px;">OFF</button>
+            </div>
+        </div>
     </div>
 
 <script>
-    // FIREBASE AYARLARI
+    // --- FIREBASE BAĞLANTISI (SENİN KEYLER) ---
     const firebaseConfig = {
       apiKey: "AIzaSyAeDY4Bv6hWopJrfeJ7nfgPJRd9VYGEx8B",
       authDomain: "sweet-masters-82504.firebaseapp.com",
@@ -214,121 +202,283 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    let userId = localStorage.getItem('sm_uid') || "oyuncu_" + Math.floor(Math.random()*99999);
+    let userId = localStorage.getItem('sm_uid') || "user_" + Math.random().toString(36).substr(2, 5);
     localStorage.setItem('sm_uid', userId);
+
+    // --- OYUN AYARLARI VE SEMBOLLER ---
+    // Ağırlık (Weight) ne kadar düşükse o kadar zor gelir.
+    const SYMBOLS = [
+        { icon: '💎', val: 50, weight: 2 },   // Çok zor (x50)
+        { icon: '👑', val: 25, weight: 4 },   // Zor
+        { icon: '⭐', val: 15, weight: 8 },
+        { icon: '🍉', val: 10, weight: 12 },
+        { icon: '🍇', val: 5,  weight: 16 },
+        { icon: '🍌', val: 2,  weight: 20 },
+        { icon: '🍒', val: 1,  weight: 25 },  // Çok kolay (x1)
+        { icon: '💣', val: 0,  weight: 5 }    // Bomba (Boş)
+    ];
 
     let state = {
         balance: parseInt(localStorage.getItem('sm_bal')) || 5000,
-        bet: 100, spinning: false, auto: false, roomID: null, greenLight: false
+        bet: 100,
+        spinning: false,
+        auto: false,
+        roomID: null
     };
 
-    function toggleMenu() { document.getElementById('sidebar').classList.toggle('open'); }
-
-    // Menü dışına tıklandığında kapatma
-    document.addEventListener('click', (e) => {
-        const sb = document.getElementById('sidebar');
-        if(sb.classList.contains('open') && !sb.contains(e.target) && !e.target.classList.contains('menu-icon')) {
-            toggleMenu();
-        }
-    });
-
-    async function spin() {
-        if(state.spinning || state.balance < state.bet) return;
-        state.spinning = true;
-        state.balance -= state.bet;
-        state.greenLight = Math.random() < 0.1;
-        
-        document.getElementById('grid').classList.toggle('green-light-mode', state.greenLight);
+    // --- BAŞLANGIÇ ---
+    window.onload = () => {
         updateUI();
-
-        const cells = document.querySelectorAll('.symbol');
-        cells.forEach((c, i) => {
-            setTimeout(() => {
-                c.innerText = ['💎', '⭐', '🍇', '🍉', '🍌', '🍒'][Math.floor(Math.random()*6)];
-                c.classList.add('animate__animated', 'animate__bounceInDown');
-            }, i * 20);
+        initGrid();
+        startBonusTimer();
+        
+        // Menü dışına tıklayınca kapatma
+        document.addEventListener('click', (e) => {
+            const sb = document.getElementById('sidebar');
+            const icon = document.querySelector('.fa-bars');
+            if(sb.classList.contains('open') && !sb.contains(e.target) && e.target !== icon) toggleMenu();
         });
+    };
 
-        await new Promise(r => setTimeout(r, 800));
-        checkWin();
+    function initGrid() {
+        const grid = document.getElementById('grid');
+        grid.innerHTML = '';
+        for(let i=0; i<30; i++) {
+            let div = document.createElement('div');
+            div.className = 'symbol';
+            div.innerText = getRandomSymbol().icon;
+            grid.appendChild(div);
+        }
     }
 
-    function checkWin() {
-        const cells = document.querySelectorAll('.symbol');
-        let counts = {};
-        cells.forEach(c => counts[c.innerText] = (counts[c.innerText] || 0) + 1);
-
-        let win = 0;
-        for(let s in counts) {
-            if(counts[s] >= 6) win += (counts[s] * (state.bet / 5));
+    function getRandomSymbol() {
+        // Ağırlıklı rastgele seçim (Zorlaştırma mekaniği)
+        let totalWeight = SYMBOLS.reduce((sum, s) => sum + s.weight, 0);
+        let random = Math.random() * totalWeight;
+        for (let s of SYMBOLS) {
+            if (random < s.weight) return s;
+            random -= s.weight;
         }
-        if(state.greenLight) win *= 10;
+        return SYMBOLS[SYMBOLS.length - 1];
+    }
 
-        if(win > 0) {
-            state.balance += win;
-            const ov = document.getElementById('win-overlay');
-            ov.innerText = "+" + Math.floor(win);
-            ov.style.display = 'block';
-            confetti({ particleCount: 150 });
-            setTimeout(() => ov.style.display = 'none', 2000);
+    // --- OYUN MEKANİĞİ ---
+    async function playTurn() {
+        if(state.spinning || state.balance < state.bet) return;
+        
+        state.spinning = true;
+        state.balance -= state.bet;
+        updateUI();
+        document.getElementById('spin-btn').disabled = true;
+
+        // 1. Grid Temizle ve Düşür
+        const cells = document.querySelectorAll('.symbol');
+        cells.forEach((c, i) => {
+            c.classList.remove('winning-glow', 'suspense-glow'); // Temizle
+            setTimeout(() => {
+                c.className = 'symbol drop-in'; // Sadece düşme animasyonu
+                let sym = getRandomSymbol();
+                c.innerText = sym.icon;
+                c.dataset.val = sym.val;
+            }, i * 15); // Hızlı düşüş
+        });
+
+        // Online Durum Bildir
+        if(state.roomID) db.ref(`rooms/${state.roomID}/${userId}`).update({ action: 'spin', time: Date.now() });
+
+        await new Promise(r => setTimeout(r, 800)); // Düşüş bekleme
+        await checkLogic(); // Kontrol ve Animasyon
+    }
+
+    async function checkLogic() {
+        const cells = Array.from(document.querySelectorAll('.symbol'));
+        let counts = {};
+        let positions = {};
+
+        // Sayım yap
+        cells.forEach((c, index) => {
+            let icon = c.innerText;
+            counts[icon] = (counts[icon] || 0) + 1;
+            if(!positions[icon]) positions[icon] = [];
+            positions[icon].push(index); // Hangi kutularda olduğunu kaydet
+        });
+
+        let totalWin = 0;
+        let won = false;
+
+        // Tek tek kontrol et (Suspense Modu)
+        for (let icon in counts) {
+            // Sadece çok çıkanları kontrol et (Heyecan yaratmak için)
+            if (counts[icon] >= 4) {
+                // Burada "Tüh be" veya "Kazandın" animasyonu devreye girer
+                let isWin = counts[icon] >= 8; // 8 ve üzeri kazanır (Daha zor)
+                let iconIndices = positions[icon];
+
+                // SIRALI YANMA EFEKTİ (TEK TEK)
+                for (let i = 0; i < iconIndices.length; i++) {
+                    let cellIndex = iconIndices[i];
+                    let cell = cells[cellIndex];
+                    
+                    // Her sembolü biraz bekleyerek yak
+                    cell.classList.add('suspense-glow');
+                    await new Promise(r => setTimeout(r, 150)); // 150ms bekle
+
+                    if(isWin && i === iconIndices.length - 1) {
+                        // Hepsi yandı ve kazandı
+                    }
+                }
+
+                if (isWin) {
+                    // KAZANÇ HESAPLA
+                    let symObj = SYMBOLS.find(s => s.icon === icon);
+                    if(symObj.val > 0) {
+                        let winAmount = (symObj.val * counts[icon] * (state.bet / 100));
+                        totalWin += winAmount;
+                        won = true;
+
+                        // YEŞİL IŞIK VE PATLAMA
+                        iconIndices.forEach(idx => {
+                            cells[idx].classList.remove('suspense-glow');
+                            cells[idx].classList.add('winning-glow'); // Yeşil ışık
+                        });
+                    }
+                } else {
+                    // TÜH BE! (Kaybetti, ışıkları söndür)
+                    iconIndices.forEach(idx => {
+                        cells[idx].classList.remove('suspense-glow');
+                    });
+                }
+            }
+        }
+
+        if (totalWin > 0) {
+            state.balance += totalWin;
+            showMegaWin(totalWin);
+            
+            // Patlama Efekti (Biraz bekleyip)
+            await new Promise(r => setTimeout(r, 1000));
+            cells.forEach(c => {
+                if(c.classList.contains('winning-glow')) {
+                    c.classList.remove('winning-glow');
+                    c.classList.add('pop-out');
+                }
+            });
+            
+            // Online Gönder
+            if(state.roomID) db.ref(`rooms/${state.roomID}/${userId}`).update({ lastWin: totalWin });
+
+        } else {
+            // Kayıp
         }
 
         state.spinning = false;
+        document.getElementById('spin-btn').disabled = false;
         updateUI();
-        if(state.auto) setTimeout(spin, 1200);
-    }
 
-    function updateUI() {
-        document.getElementById('balance').innerText = Math.floor(state.balance).toLocaleString();
-        document.getElementById('bet').innerText = state.bet;
-        localStorage.setItem('sm_bal', state.balance);
-    }
-
-    function adjBet(v) { if(!state.spinning && state.bet+v >= 100) { state.bet+=v; updateUI(); } }
-    
-    function toggleAuto() { 
-        state.auto = !state.auto; 
-        document.getElementById('auto-btn').innerText = "OTO: " + (state.auto ? "ON" : "OFF");
-        if(state.auto) spin();
-    }
-
-    async function joinRoomPrompt() {
-        const { value: room } = await Swal.fire({ title: 'Oda İsmi', input: 'text' });
-        if(room) {
-            state.roomID = room;
-            db.ref(`rooms/${room}/${userId}`).set({ status: 'online' });
-            db.ref(`rooms/${room}/${userId}`).onDisconnect().remove();
-            document.getElementById('server-status').innerText = "ONLINE: " + room;
-            document.getElementById('server-status').style.color = "#00ff66";
-            toggleMenu();
+        if(state.auto && state.balance >= state.bet) {
+            setTimeout(playTurn, 1000);
         }
     }
 
+    function showMegaWin(amt) {
+        const msg = document.getElementById('win-msg');
+        msg.innerHTML = `+${Math.floor(amt)} TL`;
+        msg.style.display = 'block';
+        msg.className = 'animate__animated animate__zoomIn';
+        confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+        setTimeout(() => msg.style.display = 'none', 2000);
+    }
+
+    // --- YARDIMCI FONKSİYONLAR ---
+    function updateUI() {
+        document.getElementById('balance').innerText = Math.floor(state.balance).toLocaleString();
+        document.getElementById('bet').innerText = state.bet;
+        document.getElementById('last-win').innerText = localStorage.getItem('sm_lastwin') || 0;
+        localStorage.setItem('sm_bal', state.balance);
+    }
+
+    function adjBet(val) {
+        if(!state.spinning && state.bet + val >= 100) {
+            state.bet += val;
+            updateUI();
+        }
+    }
+
+    function toggleAuto() {
+        state.auto = !state.auto;
+        const btn = document.getElementById('auto-btn');
+        btn.innerText = state.auto ? "ON" : "OFF";
+        btn.style.background = state.auto ? "var(--neon-green)" : "#333";
+        if(state.auto) playTurn();
+    }
+
+    function toggleMenu() {
+        document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    function showPayTable() {
+        let html = '<table style="width:100%; color:white; text-align:left;">';
+        SYMBOLS.forEach(s => {
+            html += `<tr><td style="font-size:1.5rem">${s.icon}</td><td>x${s.val}</td><td style="color:#888">${s.weight < 5 ? 'Çok Nadir' : 'Yaygın'}</td></tr>`;
+        });
+        html += '</table><p style="font-size:0.8rem; margin-top:10px;">En az 8 tane eşleşmelidir.</p>';
+        
+        Swal.fire({
+            title: 'KAZANÇ TABLOSU',
+            html: html,
+            background: '#111',
+            color: '#fff',
+            confirmButtonColor: '#ff0055'
+        });
+    }
+
+    function resetData() {
+        if(confirm('Bakiyen sıfırlanacak emin misin?')) {
+            localStorage.clear();
+            location.reload();
+        }
+    }
+
+    // 5 Dakikada Bir Para Yağmuru
+    function startBonusTimer() {
+        setInterval(() => {
+            state.balance += 2000;
+            updateUI();
+            Swal.fire({
+                toast: true, position: 'top-end', icon: 'success',
+                title: '+2.000 TL Sadakat Bonusu!',
+                showConfirmButton: false, timer: 3000,
+                background: '#004d00', color: '#fff'
+            });
+        }, 300000);
+    }
+
+    // --- ONLINE FONKSİYONLAR ---
+    async function joinRoomPrompt() {
+        const { value: room } = await Swal.fire({
+            title: 'Oda Adı', input: 'text', background: '#222', color: '#fff'
+        });
+        if(room) {
+            state.roomID = room;
+            db.ref(`rooms/${room}/${userId}`).set({ balance: state.balance, status: 'Online' });
+            db.ref(`rooms/${room}/${userId}`).onDisconnect().remove();
+            
+            document.getElementById('server-status').innerText = "ONLINE: " + room;
+            document.getElementById('server-status').style.color = "#00ff66";
+            toggleMenu();
+            Swal.fire('Bağlandı', 'Şimdi arkadaşını bekle!', 'success');
+        }
+    }
+    
     function leaveRoom() {
-        if(state.roomID) db.ref(`rooms/${state.roomID}/${userId}`).remove();
-        state.roomID = null;
-        document.getElementById('server-status').innerText = "OFFLINE";
-        document.getElementById('server-status').style.color = "red";
-        toggleMenu();
+        if(state.roomID) {
+            db.ref(`rooms/${state.roomID}/${userId}`).remove();
+            state.roomID = null;
+            document.getElementById('server-status').innerText = "OFFLINE";
+            document.getElementById('server-status').style.color = "red";
+            toggleMenu();
+        }
     }
-
-    function resetData() { localStorage.clear(); location.reload(); }
-
-    // 5 Dakikada bir 2000 TL Bonus
-    setInterval(() => {
-        state.balance += 2000;
-        updateUI();
-        Swal.fire({ toast: true, position: 'top-end', title: '+2.000 TL Bonus!', timer: 3000, showConfirmButton: false });
-    }, 300000);
-
-    // İlk grid kurulumu
-    for(let i=0; i<30; i++) {
-        let c = document.createElement('div');
-        c.className = 'symbol';
-        c.innerText = '🍬';
-        document.getElementById('grid').appendChild(c);
-    }
-    updateUI();
 </script>
 </body>
 </html>
